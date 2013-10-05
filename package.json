@@ -20,5 +20,12 @@
       "description": "Number of tabs to be preloaded right to the current tab.",
       "type": "integer",
       "value": 2
+  },
+  {
+      "name": "debugLog",
+      "title": "Debug logging",
+      "description": "Show debug messages in error console.",
+      "type": "bool",
+      "value": false
   }]
 }
