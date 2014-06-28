@@ -5,7 +5,7 @@
   "description": "Reloads neighboring tabs of currently active tab if they are pending to be reloaded after a restart.",
   "author": "jmozmoz",
   "license": "MPL 2.0",
-  "version": "0.4",
+  "version": "0.5.0",
 
   "preferences": [{
       "name": "leftOffset",
@@ -20,6 +20,13 @@
       "description": "Number of tabs to be preloaded right to the current tab.",
       "type": "integer",
       "value": 2
+  },
+  {
+      "name": "preloadGracePeriode",
+      "title": "Grace Period",
+      "description": "If current tab is still loading wait for X seconds before neighboring tabs are preloaded.",
+      "type": "integer",
+      "value": 3
   },
   {
       "name": "debugLog",
