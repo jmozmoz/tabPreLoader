@@ -1,11 +1,12 @@
 {
   "name": "tabpreloader",
-  "fullName": "tabPreLoader",
-  "id": "jid1-VEYBpA8EfyS7Kg",
+  "title": "tabPreLoader",
+  "id": "jid1-VEYBpA8EfyS7Kg@jetpack",
   "description": "Reloads neighboring tabs of currently active tab if they are pending to be reloaded after a restart.",
   "author": "jmozmoz",
   "license": "MPL 2.0",
-  "version": "0.7.0beta1",
+  "version": "0.7.0beta2",
+  "main": "lib/main",
 
   "preferences": [{
       "name": "leftOffset",
