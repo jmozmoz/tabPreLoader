@@ -5,7 +5,7 @@
   "description": "Reloads neighboring tabs of currently active tab if they are pending to be reloaded after a restart.",
   "author": "jmozmoz",
   "license": "MPL 2.0",
-  "version": "0.7.0beta6",
+  "version": "0.7.1beta2",
   "main": "lib/main",
 
   "preferences": [{
@@ -35,5 +35,12 @@
       "description": "Show debug messages in error console.",
       "type": "bool",
       "value": false
-  }]
+  }],
+  "engines": {
+      "firefox": ">=38.0a1",
+      "fennec": ">=38.0a1"
+  },
+  "permissions": {
+      "multiprocess": true
+  }
 }
