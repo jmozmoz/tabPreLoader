@@ -12,6 +12,8 @@
 
 old/
 .git/
+test/
 .settings/
 .project
 .gitignore
+.jpmignore
