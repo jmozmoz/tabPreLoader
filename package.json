@@ -5,7 +5,7 @@
   "description": "Reloads neighboring tabs of currently active tab if they are pending to be reloaded after a restart.",
   "author": "jmozmoz",
   "license": "MPL 2.0",
-  "version": "0.7.3beta5",
+  "version": "0.7.3beta6",
   "main": "lib/main",
 
   "preferences": [{
