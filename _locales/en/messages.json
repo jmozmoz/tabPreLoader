@@ -7,10 +7,5 @@
   "extensionDescription": {
     "message": "Reloads neighboring tabs of currently active tab if they are pending to be reloaded after a restart.",
     "description": "Description of the extension."
-  },
-
-  "contextItemTitle": {
-      "message": "test",
-      "description": "Title of the context menu item."
   }
 }
