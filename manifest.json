@@ -1,0 +1,24 @@
+{
+  "applications": {
+    "gecko": {
+      "strict_min_version": "57.0"
+    }
+  },
+
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "version": "0.8.0beta1",
+  "homepage_url": "https://github.com/jmozmoz/tabpreloader",
+
+  "description": "__MSG_extensionDescription__",
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+  "permissions": [
+    "tabs"
+  ],
+
+  "default_locale": "en"
+}
