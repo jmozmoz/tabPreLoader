@@ -17,7 +17,7 @@ function updateTab(tab) {
     }
 
     if (info.os == "android") {
-      var updating = browser.tabs.update(tab.id, {url: tab.url});
+      var updating = browser.tabs.reload(tab.id, {bypassCache: true});
     } else {
       var updating = browser.tabs.reload(tab.id, {});
     }
