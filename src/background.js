@@ -9,14 +9,22 @@ var currentSettings;
 
 
 function updateTab(tab) {
-  if (currentSettings.debugLog) {
-    console.log('reload tab: ', tab.index);
-  }
-  var updating = browser.tabs.reload(tab.id,
-    {
+  var gettingInfo = browser.runtime.getPlatformInfo();
+  gettingInfo.then(function(info) {
+    if (currentSettings.debugLog) {
+      console.log('reload tab: ', tab.index);
+      console.log('android: ', info.os);
     }
+
+    if (info.os == "android") {
+      var updating = browser.tabs.update(tab.id, {url: tab.url});
+    } else {
+      var updating = browser.tabs.reload(tab.id, {});
+    }
+  }
   );
 }
+
 
 function debugLog(msg) {
   if (currentSettings.debugLog) {
