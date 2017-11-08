@@ -46,7 +46,7 @@ function setupListeners() {
   });
 }
 
-function findNeighbours (senderID, tabs) {
+function  findNeighbours (senderID, tabs) {
   var sender;
   var status;
 
