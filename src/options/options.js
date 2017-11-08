@@ -1,35 +1,42 @@
-function saveOptions(e) {
-  e.preventDefault();
-  browser.storage.local.set({
-    leftOffset: document.querySelector("#leftOffset").value
-  });
-  browser.storage.local.set({
-    rightOffset: document.querySelector("#rightOffset").value
-  });
-  browser.storage.local.set({
-    preloadGracePeriode: document.querySelector("#preloadGracePeriode").value
-  });
-  browser.storage.local.set({
-    debugLog: document.querySelector("#debugLog").value
-  });
+function TabPreloaderOptions() {
+  this.setupStateAndListeners();
 }
 
-function restoreOptions() {
 
-  function setPreloaderParameters(result) {
-    document.querySelector("#leftOffset").value = result.leftOffset || 1;
-    document.querySelector("#rightOffset").value = result.rightOffset || 2;
-    document.querySelector("#preloadGracePeriode").value = result.preloadGracePeriode || 5;
-    document.querySelector("#debugLog").value = result.debugLog || true;
-  }
+TabPreloaderOptions.prototype = {
+  setupStateAndListeners() {
+    this._setupNumberOption("leftOffset", "leftOffset");
+    this._setupNumberOption("rightOffset", "rightOffset");
+    this._setupNumberOption("preloadGracePeriode", "preloadGracePeriode");
+    this._setupCheckboxOption("debugLog", "debugLog");
+  },
+  _setupNumberOption(numberId, optionName) {
+    const number = document.getElementById(numberId);
+    browser.storage.local.get({
+      [optionName]: 1
+    }).then(prefs => {
+      number.value = prefs[optionName];
+    });
+    number.addEventListener("change", e => {
+      browser.storage.local.set({
+        [optionName]: e.target.value
+      });
+    });
+  },
+  _setupCheckboxOption(checkboxId, optionName) {
+    const checkbox = document.getElementById(checkboxId);
+    browser.storage.local.get({
+      [optionName]: false
+    }).then(prefs => {
+      checkbox.checked = prefs[optionName];
+    });
 
-  function onError(error) {
-    console.log(`Error: ${error}`);
-  }
+    checkbox.addEventListener("change", e => {
+      browser.storage.local.set({
+        [optionName]: e.target.checked
+      });
+    });
+  },
+};
 
-  var getting = browser.storage.local.get("color");
-  getting.then(setPreloaderParameters, onError);
-}
-
-document.addEventListener("DOMContentLoaded", restoreOptions);
-document.querySelector("form").addEventListener("submit", saveOptions);
+new TabPreloaderOptions();
