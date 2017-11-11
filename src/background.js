@@ -6,6 +6,9 @@ const defaultSettings = {
 }
 
 var _currentSettings = null;
+var _tabActivated = {};
+var _tabTimerCounter = {};
+
 
 function setupListeners() {
 
@@ -41,51 +44,57 @@ function setupListeners() {
     var querying = browser.tabs.query({currentWindow: true});
     var senderID = activeInfo.tabId;
     querying.then(
-        findNeighbours.bind(null, senderID)
+        tabActivated
     );
   });
 }
 
-function  findNeighbours (senderID, tabs) {
+function tabActivated() {
   var sender;
   var status;
 
-  for (var tab of tabs) {
-    if (tab.id == senderID) {
-      sender = tab;
-      status = tab.status;
-      break;
-    }
-  }
+  browser.tabs.query({currentWindow: true, active: true}).then(
+  (tabs) => {
+    senderID = tabs[0].id;
+    status = tabs[0].status;
+    _debugLog('senderID: ' + senderID);
+    var senderIDstr = senderID.toString();
 
-  _debugLog('senderID: ' + senderID);
+    if (!_tabActivated.hasOwnProperty(senderIDstr)) {
+      _tabActivated[senderIDstr] = true;
+      _debugLog('check alarm for senderID: ' + senderID);
 
-  var getAlarm = browser.alarms.get(senderID.toString());
-  getAlarm.then((alarm) => {
-    _debugLog('alarm ' + JSON.stringify(alarm));
-    if (typeof alarm == 'undefined') {
-      if (status == 'complete') {
-        _debugLog('load immediately ' + senderID.toString());
-        browser.alarms.create(senderID.toString(), {
-          delayInMinutes: 1.0/60.0 * 0.1
-          });
-      } else {
-        _debugLog('delayed load ' + senderID.toString());
-        browser.alarms.create(senderID.toString(), {
-          delayInMinutes: 1.0/60.0 * _currentSettings.preloadGracePeriode
-        });
+      var getAlarm = browser.alarms.get(senderIDstr);
+      getAlarm.then((alarm) => {
+        _debugLog('alarm ' + JSON.stringify(alarm));
+        if (typeof alarm == 'undefined') {
+          if (status == 'complete') {
+            _tabTimerCounter[senderIDstr] = _currentSettings.preloadGracePeriode + 1;
+            _debugLog('load immediately ' + senderIDstr);
+            browser.alarms.create(senderIDstr, {
+              delayInMinutes: 1.0/60.0 * 0.1
+              });
+          } else {
+            _debugLog('delayed load ' + senderIDstr);
+            _tabTimerCounter[senderIDstr] = 1;
+            browser.alarms.create(senderIDstr, {
+              delayInMinutes: 1.0/60.0
+            });
+          }
+        } else {
+          _debugLog('reload already initiated ' + JSON.stringify(alarm));
+        }
+      });
       }
-    } else {
-      _debugLog('reload already initiated ' + JSON.stringify(alarm));
     }
-  });
+  );
 }
 
-function updateTab(tab) {
+function reloadTab(tab) {
   var gettingInfo = browser.runtime.getPlatformInfo();
   gettingInfo.then(function(info) {
     _debugLog('reload tab: ' + tab.index);
-    _debugLog('android: ' + info.os);
+    _debugLog('os: ' + info.os);
 
     if (info.os == "android") {
       var updating = browser.tabs.reload(tab.id, {bypassCache: true});
@@ -104,36 +113,56 @@ function _debugLog(msg) {
 
 function handleAlarm(alarmInfo) {
   _debugLog("on alarm: " + alarmInfo.name);
+  senderID = alarmInfo.name;
+  browser.tabs.get(parseInt(senderID)).then(
+    (sender) => {
+      _debugLog('status of senderID after alarm: ' + sender.status);
+      _debugLog('timecounter after alarm: ' + _tabTimerCounter[senderID]);
+      _debugLog('grace periode: ' + _currentSettings.preloadGracePeriode);
+      if (sender.status == 'complete' ||
+          (_tabTimerCounter[senderID] >= _currentSettings.preloadGracePeriode )) {
+        findNeighbours(senderID);
+      }
+      else {
+        _tabTimerCounter[senderID] = _tabTimerCounter[senderID] + 1;
+        browser.alarms.create(senderID, {
+          delayInMinutes: 1.0/60.0
+        });
+      }
+    }
+  );
+}
 
-  var sender;
+function findNeighbours(senderID) {
+
+  var clearAlarm = browser.alarms.clear(senderID);
+  clearAlarm.then();
 
   var querying = browser.tabs.query({currentWindow: true});
   querying.then((tabs) => {
 
-    for (var tab of tabs) {
-      if (tab.id == alarmInfo.name) {
-        sender = tab;
-        break;
-      }
-    }
+    browser.tabs.get(parseInt(senderID)).then(
+      (sender) => {
+        _debugLog('status of senderID after alarm at reload: ' + sender.status);
+        for (var tab of tabs) {
+          if ((
+                ((tab.index - sender.index) >= -_currentSettings.leftOffset) &&
+                ((tab.index - sender.index) <= _currentSettings.rightOffset)
+              ) &&
+              (tab.index != sender.index)
+          ) {
+            _debugLog('tab neighbor!');
+            _debugLog('tab discarded: ' + tab.discarded);
+            _debugLog('tab url: ' + tab.url);
 
-    for (var tab of tabs) {
-      if ((
-            ((tab.index - sender.index) >= -_currentSettings.leftOffset) &&
-            ((tab.index - sender.index) <= _currentSettings.rightOffset)
-          ) &&
-          (tab.index != sender.index)
-      ) {
-        _debugLog('tab neighbor!');
-        _debugLog('tab discarded: ' + tab.discarded);
-        _debugLog('tab url: ' + tab.url);
-
-        if (tab.discarded) {
-            _debugLog('immediate reload: ' + tab.index);
-            updateTab(tab)
+            if (tab.discarded) {
+                _debugLog('immediate reload: ' + tab.index);
+                reloadTab(tab);
+            }
+          }
         }
       }
-    }
+    );
   });
 }
 

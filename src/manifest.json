@@ -7,7 +7,7 @@
 
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
-  "version": "0.8.0beta5",
+  "version": "0.8.0beta6",
   "homepage_url": "https://github.com/jmozmoz/tabpreloader",
 
   "description": "__MSG_extensionDescription__",
@@ -25,7 +25,7 @@
     "tabs",
     "storage",
     "alarms"
-  ],
+   ],
 
   "default_locale": "en"
 }
