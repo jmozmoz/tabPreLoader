@@ -1,13 +1,14 @@
 {
   "applications": {
     "gecko": {
-      "strict_min_version": "57.0a1"
+      "strict_min_version": "57.0a1",
+      "id": "jid1-VEYBpA8EfyS7Kg@jetpack"
     }
   },
 
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
-  "version": "0.8.0beta6",
+  "version": "0.8.0beta7",
   "homepage_url": "https://github.com/jmozmoz/tabpreloader",
 
   "description": "__MSG_extensionDescription__",
