@@ -19,7 +19,7 @@ TabPreloaderOptions.prototype = {
     });
     number.addEventListener("change", e => {
       browser.storage.local.set({
-        [optionName]: e.target.value
+        [optionName]: parseInt(e.target.value)
       });
     });
   },

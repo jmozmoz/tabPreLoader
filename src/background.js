@@ -69,7 +69,7 @@ function tabActivated() {
         _debugLog('alarm ' + JSON.stringify(alarm));
         if (typeof alarm == 'undefined') {
           if (status == 'complete') {
-            _tabTimerCounter[senderIDstr] = _currentSettings.preloadGracePeriode + 1;
+            _tabTimerCounter[senderIDstr] = parseInt(_currentSettings.preloadGracePeriode) * 0.5;
             _debugLog('load immediately ' + senderIDstr);
             browser.alarms.create(senderIDstr, {
               delayInMinutes: 1.0/60.0 * 0.1
@@ -119,12 +119,18 @@ function handleAlarm(alarmInfo) {
       _debugLog('status of senderID after alarm: ' + sender.status);
       _debugLog('timecounter after alarm: ' + _tabTimerCounter[senderID]);
       _debugLog('grace periode: ' + _currentSettings.preloadGracePeriode);
-      if (sender.status == 'complete' ||
-          (_tabTimerCounter[senderID] >= _currentSettings.preloadGracePeriode )) {
-        findNeighbours(senderID);
+
+      if (_tabTimerCounter[senderID] >= parseInt(_currentSettings.preloadGracePeriode)) {
+        findAllNeighbours(senderID);
       }
       else {
         _tabTimerCounter[senderID] = _tabTimerCounter[senderID] + 1;
+
+        if (sender.status == 'complete' ||
+            (_tabTimerCounter[senderID] >= parseInt(_currentSettings.preloadGracePeriode) * 0.5)) {
+          findNeighbours(senderID, 1, 1);
+        }
+
         browser.alarms.create(senderID, {
           delayInMinutes: 1.0/60.0
         });
@@ -133,10 +139,23 @@ function handleAlarm(alarmInfo) {
   );
 }
 
-function findNeighbours(senderID) {
+function findAllNeighbours(senderID) {
+
+  _debugLog('findAllNeighbours');
 
   var clearAlarm = browser.alarms.clear(senderID);
   clearAlarm.then();
+
+  findNeighbours(senderID,
+      parseInt(_currentSettings.leftOffset),
+      parseInt(_currentSettings.rightOffset));
+
+}
+
+
+function findNeighbours(senderID, leftOffset, rightOffset) {
+
+  _debugLog('findNeighbours: ' + leftOffset + ", " + rightOffset);
 
   var querying = browser.tabs.query({currentWindow: true});
   querying.then((tabs) => {
@@ -146,8 +165,8 @@ function findNeighbours(senderID) {
         _debugLog('status of senderID after alarm at reload: ' + sender.status);
         for (var tab of tabs) {
           if ((
-                ((tab.index - sender.index) >= -_currentSettings.leftOffset) &&
-                ((tab.index - sender.index) <= _currentSettings.rightOffset)
+                ((tab.index - sender.index) >= -leftOffset) &&
+                ((tab.index - sender.index) <= rightOffset)
               ) &&
               (tab.index != sender.index)
           ) {
@@ -165,5 +184,6 @@ function findNeighbours(senderID) {
     );
   });
 }
+
 
 setupListeners();
