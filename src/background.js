@@ -163,6 +163,13 @@ function findNeighbours(senderID, leftOffset, rightOffset) {
     browser.tabs.get(parseInt(senderID)).then(
       (sender) => {
         _debugLog('status of senderID after alarm at reload: ' + sender.status);
+        var found_all_only_nn = true;
+
+        found_all_only_nn = found_all_only_nn && (sender.status === "complete");
+        found_all_only_nn = found_all_only_nn && (
+            (leftOffset < parseInt(_currentSettings.leftOffset)) ||
+            (rightOffset < parseInt(_currentSettings.rightOffset))
+            );
         for (var tab of tabs) {
           if ((
                 ((tab.index - sender.index) >= -leftOffset) &&
@@ -173,12 +180,20 @@ function findNeighbours(senderID, leftOffset, rightOffset) {
             _debugLog('tab neighbor!');
             _debugLog('tab discarded: ' + tab.discarded);
             _debugLog('tab url: ' + tab.url);
+            _debugLog('tab status: ' + tab.status);
+
+            found_all_only_nn = found_all_only_nn && (!tab.discarded);
+            found_all_only_nn = found_all_only_nn && (tab.status === "complete");
 
             if (tab.discarded) {
                 _debugLog('immediate reload: ' + tab.index);
                 reloadTab(tab);
             }
           }
+        }
+        _debugLog('found all and only next neighbors: ' + found_all_only_nn);
+        if (found_all_only_nn) {
+          findAllNeighbours(senderID);
         }
       }
     );
